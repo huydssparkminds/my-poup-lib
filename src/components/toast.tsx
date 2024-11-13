@@ -1,21 +1,23 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ErrorIcon,
+  IconClose,
   InfoIcon,
+  LoadingIcon,
   SuccessIcon,
   WarningIcon,
-  IconClose,
 } from "../assets";
 import { ToastProps, ToastType } from "./index";
 
 const ToastIcon = ({ type }: { type: ToastType }) => {
   return (
-    <div className={`Toastify__toast-icon Toastify__toast-icon--${type}`}>
-      {type === "success" && <SuccessIcon />}
-      {type === "info" && <InfoIcon />}
-      {type === "warning" && <WarningIcon />}
-      {type === "error" && <ErrorIcon />}
-    </div>
+   <>
+        {type === "success" && <SuccessIcon />}
+        {type === "info" && <InfoIcon />}
+        {type === "warning" && <WarningIcon />}
+        {type === "error" && <ErrorIcon />}
+        {type === 'loading' && <LoadingIcon />}
+   </>
   );
 };
 
@@ -23,18 +25,27 @@ const Toast = ({
   title,
   message,
   position,
-  type = 'success',
+  type = "success",
   id,
-  timeout = 5000,
+  duration = 5000,
   onClose,
 }: ToastProps) => {
   const [progress, setProgress] = useState(0);
-  const [isHover, setHover] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const startProgress = () => {
-    const increment = 100 / (timeout / 100);
+    if (typeof duration === "boolean") {
+      intervalRef.current = setInterval(() => {
+        if (!duration) {
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          handleClose();
+          return;
+        }
+      }, 100);
+      return;
+    }
+    const increment = 100 / (duration / 100);
     intervalRef.current = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
@@ -64,17 +75,23 @@ const Toast = ({
     return () => {
       stopProgress();
     };
-  }, [onClose, id, timeout]);
+  }, [onClose, id, duration]);
 
   return (
     <div
       className={`Toastify__toast Toastify__toast--${type} Toastify__toast--${position} ${
         isClosing ? `close-${position}` : ""
       }`}
+      onMouseEnter={stopProgress}
+      onMouseLeave={startProgress}
     >
       <div className="Toastify__toast-body">
         <div className="Toastify__toast-title-container">
-          <ToastIcon type={type} />
+          <div
+            className={`Toastify__toast-bubble Toastify__toast-bubble--${type}`}
+          >
+            <ToastIcon type={type} />
+          </div>
           <p className="Toastify__toast-title">{title}</p>
         </div>
         <p className="Toastify__toast-message">{message}</p>

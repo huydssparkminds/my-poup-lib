@@ -23,6 +23,9 @@ $clr-warning-secondary: #CC561E;
 $clr-error: #F05454;
 $clr-error-secondary: #AF2D2D;
 
+$clr-loading: #a8a8a8;
+$clr-loading-secondary: #796e6e;
+
 .Toastify {
     position: relative;
 
@@ -36,16 +39,16 @@ $clr-error-secondary: #AF2D2D;
         color: #fff;
         transition: all 3s ease;
 
-        &:hover .Toastify__toast:not(:last-child){
-           margin-bottom: 2rem;
-           transition: margin-bottom 0.3s ease;
+        &:hover .Toastify__toast:not(:last-child) {
+            margin-bottom: 2rem;
+            transition: margin-bottom 0.3s ease;
         }
 
         .Toastify__toast {
             border-radius: 12px;
             position: relative;
             padding: 8px;
-            margin-bottom: -3.25rem;
+            margin-bottom: -2.75rem;
             min-height: 48px;
             display: -webkit-box;
             display: -ms-flexbox;
@@ -65,20 +68,78 @@ $clr-error-secondary: #AF2D2D;
                     display: flex;
                     align-items: center;
                     gap: 8px;
-                    margin-bottom: 8px;
-
-                    .Toastify__toast-icon {
-                        width: 50px;
-                        height: 50px;
-                        object-fit: contain;
-                        position: absolute;
-                        top: -30px;
-                        left: 0;
-                    }
 
                     .Toastify__toast-title {
                         font-size: 16px;
                         font-weight: 700;
+                    }
+
+                    .Toastify__toast-bubble {
+                        width: 50px;
+                        height: 50px;
+                        border-radius: 50%;
+                        position: absolute;
+                        top: -30px;
+                        left: 0;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+
+                        &::after {
+                            content: "";
+                            position: absolute;
+                            bottom: -10px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            width: 34px;
+                            height: 18px;
+                            clip-path: polygon(11% 74%, 0 0, 96% 0);
+                            border-radius: 0 0 10px 100px;
+                        }
+
+                        &--success {
+                            background-color: $clr-success-secondary;
+
+                            &::after {
+                                background-color: $clr-success-secondary;
+                            }
+                        }
+
+                        &--info {
+                            background-color: $clr-info-secondary;
+
+                            &::after {
+                                background-color: $clr-info-secondary;
+                            }
+                        }
+
+                        &--warning {
+                            background-color: $clr-warning-secondary;
+
+                            &::after {
+                                background-color: $clr-warning-secondary;
+                            }
+                        }
+
+                        &--error {
+                            background-color: $clr-error-secondary;
+
+                            &::after {
+                                background-color: $clr-error-secondary;
+                            }
+                        }
+
+                        &--loading {
+                            background-color: $clr-loading-secondary;
+
+                            svg {
+                                animation: lds-ring 1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+                            }
+
+                            &::after {
+                                background-color: $clr-loading-secondary;
+                            }
+                        }
                     }
 
                 }
@@ -137,6 +198,10 @@ $clr-error-secondary: #AF2D2D;
             background-color: $clr-info;
         }
 
+        .Toastify__toast--loading {
+            background-color: $clr-loading;
+        }
+
         .Toastify__clip {
             position: absolute;
             bottom: 0;
@@ -144,22 +209,22 @@ $clr-error-secondary: #AF2D2D;
             width: 50px;
             height: 110px;
             clip-path: circle(40% at 0 100%);
-            border-end-start-radius: 12px ;
+            border-end-start-radius: 12px;
         }
 
         .Toastify__clip--2 {
             position: absolute;
-            bottom: 31px;
-            left: 31px;
-            width: 20px;
-            height: 20px;
+            bottom: 22px;
+            left: 43px;
+            width: 15px;
+            height: 15px;
             border-radius: 99999px;
         }
 
         .Toastify__clip--3 {
             position: absolute;
             bottom: 12px;
-            left: 41px;
+            left: 38px;
             width: 5px;
             height: 5px;
             border-radius: 99999px;
@@ -179,6 +244,10 @@ $clr-error-secondary: #AF2D2D;
 
         .toast--clip-warning {
             background-color: $clr-warning-secondary;
+        }
+
+        .toast--clip-loading {
+            background-color: $clr-loading-secondary;
         }
 
 
@@ -233,7 +302,7 @@ $clr-error-secondary: #AF2D2D;
 
         // ---- toast animation
 
-    
+
 
         .Toastify__progress-bar--success {
             background-color: $clr-success-secondary;
@@ -422,3 +491,12 @@ $clr-error-secondary: #AF2D2D;
         transform: translateY(300px);
     }
 }
+
+@keyframes lds-ring {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }

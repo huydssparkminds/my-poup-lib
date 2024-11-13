@@ -5,11 +5,19 @@ import {
   useState,
   useCallback,
 } from "react";
-import { ToastOptions, ToastPosition, ToastProps } from ".";
+import { ToastOptions, ToastPosition, ToastProps, ToastType } from ".";
 import { Toast } from "./toast";
 
 interface ToastItem extends ToastProps {
   id: number;
+}
+
+interface ToastFunction {
+  success(title: string, options?: Omit<ToastOptions, "type">): void;
+  error(title: string, options?: Omit<ToastOptions, "type">): void;
+  warning(title: string, options?: Omit<ToastOptions, "type">): void;
+  info(title: string, options?: Omit<ToastOptions, "type">): void;
+  loading(title: string, options?: Omit<ToastOptions, "type">): void;
 }
 
 interface ToastContextProps {
@@ -21,7 +29,7 @@ interface ToastContextProps {
 const ToastContext = createContext<ToastContextProps | undefined>(undefined);
 
 let addToastExternal:
-  | ((toast: Omit<ToastProps, "id" | "onClose" >) => void)
+  | ((toast: Omit<ToastProps, "id" | "onClose">) => void)
   | null = null;
 
 export const ToastProvider = ({ children }: { children: ReactNode }) => {
@@ -42,33 +50,32 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
 
   const renderPositionToasts = () => {
     if (toasts.length === 0) return null;
-  
+
     // Định nghĩa kiểu cho groupedToasts
     const groupedToasts: Record<ToastPosition, ToastItem[]> = {
-      'top-left': [],
-      'top-right': [],
-      'bottom-left': [],
-      'bottom-right': [],
+      "top-left": [],
+      "top-right": [],
+      "bottom-left": [],
+      "bottom-right": [],
       "bottom-center": [],
-      "top-center": []
+      "top-center": [],
     };
-  
+
     toasts.forEach((toast) => {
       groupedToasts[toast.position].push(toast);
     });
-  
+
     return Object.entries(groupedToasts).map(([position, toasts]) => {
       if (toasts.length === 0) return null;
-  
+
       return (
-        <div key={position} className={`Toastify__toast-container Toastify__toast-container--${position}`}>
-          {toasts.map((toast, index) => (
-            <Toast
-              key={toast.id}
-              {...toast}
-              onClose={closeToast}
-            />
-          ))}
+        <div
+          key={position}
+          className={`Toastify__toast-container Toastify__toast-container--${position}`}
+        >
+          {toasts.map((toast) => {
+            return <Toast key={toast.id} {...toast} onClose={closeToast} />;
+          })}
         </div>
       );
     });
@@ -93,19 +100,35 @@ export const useToast = () => {
   return context;
 };
 
-// Global toast function
-export type ToastFunction = (title: string, options?: ToastOptions) => void;
+const createToast = (): ToastFunction => {
+  const createTypeToast = (
+    type: ToastType,
+    title: string,
+    options?: Omit<ToastOptions, "type">
+  ) => {
+    if (addToastExternal) {
+      addToastExternal({
+        title,
+        message: options?.message,
+        position: options?.position || "top-right",
+        duration: options?.duration || 5000,
+        type,
+      });
+    }
+  };
 
-export const toast: ToastFunction = (title, options) => {
-  if (addToastExternal) {
-    addToastExternal({
-      title,
-      message: options?.message,
-      position: options?.position || "top-left",
-      timeout: options?.timeout,
-      type: options?.type || "success",
-    });
-  } else {
-    console.error("ToastProvider is not rendered yet.");
-  }
+  return {
+    success: (title: string, options?: Omit<ToastOptions, "type">) =>
+      createTypeToast("success", title, options),
+    error: (title: string, options?: Omit<ToastOptions, "type">) =>
+      createTypeToast("error", title, options),
+    warning: (title: string, options?: Omit<ToastOptions, "type">) =>
+      createTypeToast("warning", title, options),
+    info: (title: string, options?: Omit<ToastOptions, "type">) =>
+      createTypeToast("info", title, options),
+    loading: (title: string, options?: Omit<ToastOptions, "type">) =>
+      createTypeToast("loading", title, options),
+  };
 };
+
+export const toast = createToast();

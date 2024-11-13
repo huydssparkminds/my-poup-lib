@@ -1,4 +1,4 @@
-export type ToastType = "success" | "error" | "warning" | "info";
+export type ToastType = "success" | "error" | "warning" | "info" | "loading";
 export type ToastPosition =
   | "top-left"
   | "top-right"
@@ -11,7 +11,7 @@ export type ToastProps = {
   title?: string;
   message?: string;
   position: ToastPosition;
-  timeout?: number;
+  duration?: number | boolean;
   type?: ToastType;
   id: number;
   onClose: (id: number) => void;
@@ -21,11 +21,5 @@ export type ToastOptions = {
   message?: string;
   position?: ToastPosition;
   type?: ToastType;
-  timeout?: number;
+  duration?: number | boolean;
 };
-
-export type ToastSetting = {
-  position: ToastPosition;
-  timeout?: number;
-  type?: ToastType;
-}
